@@ -21,8 +21,8 @@ You may already have trained your models before you create the `Anatomy`, and th
 
     from anatomy import *
     
-    def my_map(key: AnatomyModelProvider.PeriodKey) -> 
-	    AnatomyModelProvider.PeriodValue:  
+    def my_map(key: AnatomyModelProvider.PeriodKey) -> \
+	        AnatomyModelProvider.PeriodValue:  
 	    
 	    train, test, model = ...  # load from somewhere or generate here
 	    
