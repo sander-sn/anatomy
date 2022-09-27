@@ -14,7 +14,7 @@ After initial estimation, an `Anatomy` can anatomize:
 * any loss or gain function applied to your forecasts
 * an arbitrary subset of your forecasts
 
-requiring *no additional computational time*.
+all of which requires *no additional computational time*.
 
 ### General structure
 You may already have trained your models before you create the `Anatomy`, and the aggregate of all your models at all periods may be too large to fit into your RAM. During estimation, the `Anatomy` will therefore ask you for the specific model and dataset it needs at a given iteration by calling your mapping function:
