@@ -152,7 +152,7 @@ This yields the change in out-of-sample R² attributable to each predictor:
     ols    2021-07-28 -> 2022-08-31           0.000000  0.285329  0.267940  0.249870
     ols+rf 2021-07-28 -> 2022-08-31           0.000383  0.279073  0.259201  0.240548
 
-### ... the RMSE:
+### ... the RMSE of the forecasts:
 
     def transform(y_hat, y):  
         return np.sqrt(np.mean((y - y_hat) ** 2))
