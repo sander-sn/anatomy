@@ -28,7 +28,7 @@ You may already have trained your models before you create the `Anatomy`, and th
         
         return AnatomyModelProvider.PeriodValue(train, test, model)
 
-You wrap the mapping function in an `AnatomyModelProvider` alongside information about the forecasting application
+You wrap the mapping function in an `AnatomyModelProvider` alongside information about the forecasting application:
  
     my_provider = AnatomyModelProvider(  
         n_periods=..., n_features=..., model_names=[...],
