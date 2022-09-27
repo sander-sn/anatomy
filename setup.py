@@ -13,5 +13,7 @@ setup(
     url="https://github.com/sander-sn/anatomy",
     author="Sander Schwenk-Nebbe",
     author_email="sandersn@econ.au.dk",
-    license="MIT"
+    license="MIT",
+    long_description=(Path(__file__).parent / "README.md").read_text(),
+    long_description_content_type='text/markdown'
 )
