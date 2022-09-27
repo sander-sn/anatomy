@@ -162,7 +162,7 @@ This yields the change in out-of-sample R² attributable to each predictor:
         transformer=AnatomyModelOutputTransformer(transform=transform)  
     )
 
-which yields the change in RMSE attributable to each predictor:
+which yields the change in root mean squared error attributable to each predictor:
 
     >>> df
                                      base_contribution       x_0       x_1       x_2
@@ -181,7 +181,7 @@ which yields the change in RMSE attributable to each predictor:
         transformer=AnatomyModelOutputTransformer(transform=transform)  
     )
 
-which yields the change in MAE attributable to each predictor:
+which yields the change in mean absolute error attributable to each predictor:
 
     >>> df
                                      base_contribution       x_0       x_1       x_2
@@ -200,7 +200,7 @@ which yields the change in MAE attributable to each predictor:
         transformer=AnatomyModelOutputTransformer(transform=transform)
     )
 
-which yields the change in SE attributable to each predictor for each forecast:
+which yields the change in squared error attributable to each predictor for each forecast:
 
     >>> df
                        base_contribution       x_0       x_1       x_2
