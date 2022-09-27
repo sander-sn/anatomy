@@ -192,6 +192,8 @@ which yields the change in mean absolute error attributable to each predictor:
  
 ### ... the SE:
 
+*Note that the `transform` function in this case does not aggregate and returns a vector instead of a scalar. The `Anatomy` thus yields one decomposition per forecast, which is also known as a local (as opposed to global) decomposition.*
+
     def transform(y_hat, y):  
         return (y - y_hat) ** 2
   
@@ -210,8 +212,6 @@ which yields the change in squared error attributable to each predictor for each
     ...                              ...       ...       ...       ...
 
  
-*Note that the `transform` function in this case does not aggregate and returns a vector instead of a scalar. The `Anatomy` thus yields one decomposition per forecast, which is also known as a local (as opposed to global) decomposition.*
-
 ### ... or just the raw forecasts:
 
     def transform(y_hat):
