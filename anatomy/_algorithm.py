@@ -99,7 +99,7 @@ class AnatomyAlgorithm:
                     # this yields the average model output for each activation:
                     y_hat_avg_m = f(X_eval_m).flatten().reshape(J - 1, -1).mean(axis=-1)
 
-                    # add last masking (all features active):
+                    # add first (no features active) and last (all features active) masking:
                     y_hat_avg_m = np.hstack((y_hat_avg_none, y_hat_avg_m, y_hat_avg_all))
 
                     # store results:

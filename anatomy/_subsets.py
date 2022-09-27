@@ -52,14 +52,14 @@ class AnatomySubsets:
 
         while True:
 
-            if t + initial_window + gap + 1 >= index.shape[0]:
+            if t + initial_window + gap + 1 > index.shape[0]:
                 break
 
             if estimation_type == AnatomySubsets.EstimationType.ROLLING:
                 train = slice(t, t+initial_window)
             else:
                 train = slice(0, t+initial_window)
-            test = slice(t + initial_window + gap, t + initial_window + gap + periods)
+            test = slice(t + initial_window + gap, min(t + initial_window + gap + periods, index.shape[0]))
 
             subsets.append(AnatomySubset(train_subset=train, test_subset=test))
 
@@ -72,11 +72,11 @@ class AnatomySubsets:
         self._subsets = subsets
         self.n_periods = len(subsets)
 
-    def get_train_slice_for_period(self, period: int) -> slice:
+    def get_train_subset(self, period: int) -> slice:
         assert 0 <= period < self.n_periods
         return self._subsets[period].train_subset
 
-    def get_test_slice_for_period(self, period: int) -> slice:
+    def get_test_subset(self, period: int) -> slice:
         assert 0 <= period < self.n_periods
         return self._subsets[period].test_subset
 
