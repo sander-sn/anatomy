@@ -28,14 +28,14 @@ You may already have trained your models before you create the `Anatomy`, and th
 	    
 	    return AnatomyModelProvider.PeriodValue(train, test, model)
 
-You wrap the mapping function in an `AnatomyModelProvider` alongside information about the forecasting application ..
+You wrap the mapping function in an `AnatomyModelProvider` alongside information about the forecasting application ...
  
     my_provider = AnatomyModelProvider(  
 	    n_periods=..., n_features=..., model_names=[...],
 	    y_name=..., provider_fn=my_map
 	)
 
-.. and finally create the `Anatomy`:
+... and finally create the `Anatomy`:
 
 	my_anatomy = Anatomy(provider=my_provider, n_iterations=...).precompute(  
 	    n_jobs=16, save_path="my_anatomy.bin"
@@ -64,7 +64,7 @@ For convenience, the `AnatomySubsets` includes a generator that splits your data
 	    periods=1,
 	    gap=0
 	)
-In this example, we have not yet trained our models. We thus do so directly in our mapping function ..
+In this example, we have not yet trained our models. We thus do so directly in our mapping function ...
 
 	def mapper(key: AnatomyModelProvider.PeriodKey) -> \
 			AnatomyModelProvider.PeriodValue:  
@@ -79,7 +79,7 @@ In this example, we have not yet trained our models. We thus do so directly in o
 	  
 	    return AnatomyModelProvider.PeriodValue(train, test, model)
 
-.. using `train_ols` and `train_rf`, which train a model and yield its prediction function wrapped in an `AnatomyModel` :
+... using `train_ols` and `train_rf`, which train a model and yield its prediction function wrapped in an `AnatomyModel` :
 
     from sklearn.ensemble import RandomForestRegressor  
 	from sklearn.linear_model import LinearRegression
