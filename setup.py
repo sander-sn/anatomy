@@ -1,8 +1,9 @@
 from setuptools import setup
+from pathlib import Path
 
 setup(
     name="anatomy",
-    version="0.1.0",
+    version="0.1.1",
     packages=["anatomy"],
     install_requires=[
         "joblib>=0.15.0",
@@ -15,5 +16,5 @@ setup(
     author_email="sandersn@econ.au.dk",
     license="MIT",
     long_description=(Path(__file__).parent / "README.md").read_text(),
-    long_description_content_type='text/markdown'
+    long_description_content_type="text/markdown"
 )
