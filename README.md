@@ -22,24 +22,24 @@ You may already have trained your models before you create the `Anatomy`, and th
     from anatomy import *
     
     def my_map(key: AnatomyModelProvider.PeriodKey) -> \
-	        AnatomyModelProvider.PeriodValue:  
-	    
-	    train, test, model = ...  # load from somewhere or generate here
-	    
-	    return AnatomyModelProvider.PeriodValue(train, test, model)
+            AnatomyModelProvider.PeriodValue:  
+        
+        train, test, model = ...  # load from somewhere or generate here
+        
+        return AnatomyModelProvider.PeriodValue(train, test, model)
 
-You wrap the mapping function in an `AnatomyModelProvider` alongside information about the forecasting application ...
+You wrap the mapping function in an `AnatomyModelProvider` alongside information about the forecasting application
  
     my_provider = AnatomyModelProvider(  
-	    n_periods=..., n_features=..., model_names=[...],
-	    y_name=..., provider_fn=my_map
-	)
+        n_periods=..., n_features=..., model_names=[...],
+        y_name=..., provider_fn=my_map
+    )
 
-... and finally create the `Anatomy`:
+and finally create the `Anatomy`:
 
-	my_anatomy = Anatomy(provider=my_provider, n_iterations=...).precompute(  
-	    n_jobs=16, save_path="my_anatomy.bin"
-	)
+    my_anatomy = Anatomy(provider=my_provider, n_iterations=...).precompute(  
+        n_jobs=16, save_path="my_anatomy.bin"
+    )
 
 After running the above, the `Anatomy` is estimated and stored in your working directory as `my_anatomy.bin`.
 
@@ -49,58 +49,59 @@ To get started, we need a forecasting application. We use a linear DGP to genera
     # set random seed for reproducibility:
     np.random.seed(1338)
     
-	xy = pd.DataFrame(np.random.normal(0, 1, (500, 3)), columns=["x_0", "x_1", "x_2"])
+    xy = pd.DataFrame(np.random.normal(0, 1, (500, 3)), columns=["x_0", "x_1", "x_2"])
     xy["y"] = xy.sum(axis=1) + np.random.normal(0, 1, 500)
 
-	# set a unique and monotonically increasing index (default index would suffice):
+    # set a unique and monotonically increasing index (default index would suffice):
     xy.index = pd.date_range("2021-04-19", "2022-08-31").map(lambda x: x.date())
 
 For convenience, the `AnatomySubsets` includes a generator that splits your dataset into training and test sets according to your forecasting scheme. Here, we include 100 periods in our first training set, forecast the target of the next period with no gap between the training set and the forecast, extend our training set by one period, and repeat until we reach the end of our data:
     
     subsets = AnatomySubsets.generate(
-	    index=xy.index,
-	    initial_window=100,
-	    estimation_type=AnatomySubsets.EstimationType.EXPANDING,
-	    periods=1,
-	    gap=0
-	)
-In this example, we have not yet trained our models. We thus do so directly in our mapping function ...
+        index=xy.index,
+        initial_window=100,
+        estimation_type=AnatomySubsets.EstimationType.EXPANDING,
+        periods=1,
+        gap=0
+    )
+	
+In this example, we have not yet trained our models. We thus do so directly in our mapping function:
 
-	def mapper(key: AnatomyModelProvider.PeriodKey) -> \
-			AnatomyModelProvider.PeriodValue:  
+    def mapper(key: AnatomyModelProvider.PeriodKey) -> \
+            AnatomyModelProvider.PeriodValue:  
   
-	    train = xy.iloc[subsets.get_train_subset(key.period)]  
-	    test = xy.iloc[subsets.get_test_subset(key.period)]  
+        train = xy.iloc[subsets.get_train_subset(key.period)]  
+        test = xy.iloc[subsets.get_test_subset(key.period)]  
 
-	    if key.model_name == "ols":
-	        model = train_ols(train.drop("y", axis=1), train["y"])  
-	    elif key.model_name == "rf":  
-	        model = train_rf(train.drop("y", axis=1), train["y"])  
-	  
-	    return AnatomyModelProvider.PeriodValue(train, test, model)
+        if key.model_name == "ols":
+            model = train_ols(train.drop("y", axis=1), train["y"])  
+        elif key.model_name == "rf":  
+            model = train_rf(train.drop("y", axis=1), train["y"])  
+      
+        return AnatomyModelProvider.PeriodValue(train, test, model)
 
-... using `train_ols` and `train_rf`, which train a model and yield its prediction function wrapped in an `AnatomyModel` :
+using `train_ols` and `train_rf`, which train a model and yield its prediction function wrapped in an `AnatomyModel`:
 
     from sklearn.ensemble import RandomForestRegressor  
-	from sklearn.linear_model import LinearRegression
-	
+    from sklearn.linear_model import LinearRegression
+    
     def train_ols(x_train: pd.DataFrame, y_train: pd.Series) -> AnatomyModel:
-	    ols_model = LinearRegression().fit(x_train, y_train)  
-	  
-	    def pred_fn_ols(xs: np.ndarray) -> np.ndarray:  
-	        xs_df = pd.DataFrame(xs, columns=x_train.columns)  
-	        return np.array(ols_model.predict(xs_df)).flatten()  
-	  
-	    return AnatomyModel(pred_fn_ols)  
+        ols_model = LinearRegression().fit(x_train, y_train)  
+      
+        def pred_fn_ols(xs: np.ndarray) -> np.ndarray:  
+            xs_df = pd.DataFrame(xs, columns=x_train.columns)  
+            return np.array(ols_model.predict(xs_df)).flatten()  
+      
+        return AnatomyModel(pred_fn_ols)  
 
-	def train_rf(x_train: pd.DataFrame, y_train: pd.Series) -> AnatomyModel:
-	    rf_model = RandomForestRegressor(random_state=1338).fit(x_train, y_train)  
-	  
-	    def pred_fn_rf(xs: np.ndarray) -> np.ndarray:  
-	        xs_df = pd.DataFrame(xs, columns=x_train.columns)  
-	        return np.array(rf_model.predict(xs_df)).flatten()  
-	  
-	    return AnatomyModel(pred_fn_rf)
+    def train_rf(x_train: pd.DataFrame, y_train: pd.Series) -> AnatomyModel:
+        rf_model = RandomForestRegressor(random_state=1338).fit(x_train, y_train)  
+      
+        def pred_fn_rf(xs: np.ndarray) -> np.ndarray:  
+            xs_df = pd.DataFrame(xs, columns=x_train.columns)  
+            return np.array(rf_model.predict(xs_df)).flatten()  
+      
+        return AnatomyModel(pred_fn_rf)
 
 We now have all we need to train the models and estimate the `Anatomy`:
  
@@ -122,10 +123,10 @@ At this point, the `Anatomy` is stored as `anatomy.bin` in our working directory
 We can now use our estimated `Anatomy` to dismantle our forecasts. In this example, we are interested in the two models, `rf` and `ols`, as well as the equal-weighted combination of the two:
 
     groups = {
-	    "rf": ["rf"],  
-	    "ols": ["ols"],
-	    "ols+rf": ["ols", "rf"]
-	}
+        "rf": ["rf"],  
+        "ols": ["ols"],
+        "ols+rf": ["ols", "rf"]
+    }
 
 ### Anatomize the out-of-sample R² of the forecasts:
 To decompose the out-of-sample R² of our forecasts produced by the two models and the combination, we compute the unconditional forecasts and provide a function transforming forecasts into out-of-sample R² to the `Anatomy`:
@@ -138,10 +139,10 @@ To decompose the out-of-sample R² of our forecasts produced by the two models a
     def transform(y_hat, y):  
         return 1 - np.sum((y - y_hat) ** 2) / np.sum((y - prevailing_mean) ** 2)
 
-	df = anatomy.explain(
-		model_sets=AnatomyModelCombination(groups=groups),
-		transformer=AnatomyModelOutputTransformer(transform=transform)
-	)
+    df = anatomy.explain(
+        model_sets=AnatomyModelCombination(groups=groups),
+        transformer=AnatomyModelOutputTransformer(transform=transform)
+    )
 
 This yields the change in out-of-sample R² attributable to each predictor:
 
@@ -153,13 +154,13 @@ This yields the change in out-of-sample R² attributable to each predictor:
 
 ### ... the RMSE:
 
-	def transform(y_hat, y):  
-	    return np.sqrt(np.mean((y - y_hat) ** 2))
-	
-	df = anatomy.explain(  
-	    model_sets=AnatomyModelCombination(groups=groups),  
-	    transformer=AnatomyModelOutputTransformer(transform=transform)  
-	)
+    def transform(y_hat, y):  
+        return np.sqrt(np.mean((y - y_hat) ** 2))
+    
+    df = anatomy.explain(  
+        model_sets=AnatomyModelCombination(groups=groups),  
+        transformer=AnatomyModelOutputTransformer(transform=transform)  
+    )
 
 which yields the change in RMSE attributable to each predictor:
 
@@ -172,13 +173,13 @@ which yields the change in RMSE attributable to each predictor:
    
 ### ... the MAE:
 
-	def transform(y_hat, y):  
-	    return np.mean(np.abs(y - y_hat))
-	
-	df = anatomy.explain(  
-	    model_sets=AnatomyModelCombination(groups=groups),  
-	    transformer=AnatomyModelOutputTransformer(transform=transform)  
-	)
+    def transform(y_hat, y):  
+        return np.mean(np.abs(y - y_hat))
+    
+    df = anatomy.explain(  
+        model_sets=AnatomyModelCombination(groups=groups),  
+        transformer=AnatomyModelOutputTransformer(transform=transform)  
+    )
 
 which yields the change in MAE attributable to each predictor:
 
@@ -195,9 +196,9 @@ which yields the change in MAE attributable to each predictor:
         return (y - y_hat) ** 2
   
     df = anatomy.explain(
-	    model_sets=AnatomyModelCombination(groups=groups),
-	    transformer=AnatomyModelOutputTransformer(transform=transform)
-	)
+        model_sets=AnatomyModelCombination(groups=groups),
+        transformer=AnatomyModelOutputTransformer(transform=transform)
+    )
 
 which yields the change in SE attributable to each predictor for each forecast:
 
@@ -214,12 +215,12 @@ which yields the change in SE attributable to each predictor for each forecast:
 ### ... or just the raw forecasts:
 
     def transform(y_hat):
-	    return y_hat
-	    
+        return y_hat
+        
     df = anatomy.explain(
-	    model_sets=AnatomyModelCombination(groups=groups),
-	    transformer=AnatomyModelOutputTransformer(transform=transform)
-	)
+        model_sets=AnatomyModelCombination(groups=groups),
+        transformer=AnatomyModelOutputTransformer(transform=transform)
+    )
 
 which yields the change in the forecast attributable to each predictor:
 
@@ -257,32 +258,32 @@ The RMSE is the sum of the individual attributions, `rmse_a = df.sum(axis=1)`:
 Let's next decompose the raw forecasts and compute the RMSE for these:
 
     def transform(y_hat):  
-	    return y_hat  
+        return y_hat  
   
-	df = anatomy.explain(  
-	    model_sets=AnatomyModelCombination(groups=groups),  
-	    transformer=AnatomyModelOutputTransformer(transform=transform)  
-	)
+    df = anatomy.explain(  
+        model_sets=AnatomyModelCombination(groups=groups),  
+        transformer=AnatomyModelOutputTransformer(transform=transform)  
+    )
 
 The forecasts are recovered as the sum of the individual attributions, `y_hat = df.sum(axis=1)`:
 
-	>>> y_hat
+    >>> y_hat
     rf      2021-07-28    0.338154
             2021-07-29    0.687956
             2021-07-30   -1.438958
                                ...   
 
-From the forecasts, we can compute the RMSE: 	  
-	  
-	y_true = np.hstack([  
-	    xy.iloc[subsets.get_test_subset(period=i)]["y"]
-	    for i in range(subsets.n_periods)  
-	])  
-	  
-	rmse_b = pd.Series({  
-	    key: np.sqrt(np.mean((y_true - y_hat.xs(key)) ** 2))   
-	    for key in groups.keys()  
-	})
+From the forecasts, we can compute the RMSE:       
+      
+    y_true = np.hstack([  
+        xy.iloc[subsets.get_test_subset(period=i)]["y"]
+        for i in range(subsets.n_periods)  
+    ])  
+      
+    rmse_b = pd.Series({  
+        key: np.sqrt(np.mean((y_true - y_hat.xs(key)) ** 2))   
+        for key in groups.keys()  
+    })
 
 This yields the same RMSE as the sum of the attributions from the RMSE decomposition:
 
