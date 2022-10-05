@@ -181,7 +181,7 @@ def main():
     # first generate data from the simple linear dgp:
     xy, subsets = generate_data()
 
-    # next estimate the models and the anatomy, which is as "anatomy.bin" in the current working directory:
+    # next estimate the models and the anatomy, which is stored as "anatomy.bin" in the current working directory:
     estimate_anatomy(xy, subsets)
 
     # finally load "anatomy.bin" and anatomize the estimated models on a multitude of metrics:
