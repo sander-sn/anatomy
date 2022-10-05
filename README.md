@@ -183,7 +183,7 @@ which yields the change in root mean squared error attributable to each predicto
     ols+rf 2021-07-28 -> 2022-08-31           2.105910 -0.397903 -0.368193 -0.350080
 
 ### *Interpretation*
-The previous decomposition was that of a gain function. In this case, we use the RMSE *loss* function, implying that a predictor with a negative contribution increases forecasting accuracy. Because the RMSE cannot be negative, the `base_contribution`, which is the RMSE of the average forecasts of the models, can only be positive.
+We previously decomposed the out-of-sample $R^2$. In this case, we use the RMSE *loss* function, implying that a predictor with a negative contribution increases forecasting accuracy. Because the RMSE cannot be negative, the `base_contribution`, which is the RMSE of the average forecasts of the models, can only be positive.
 
 Similar to the previous case, we find that all predictors contribute positively to forecasting accuracy (by contributing negatively to the RMSE).
    
@@ -285,7 +285,7 @@ which yields the change in the forecast attributable to each predictor:
 
 Decomposing the forecasts themselves yields contributions that bear no relation to forecasting accuracy. Hence, a negative or positive contribution means no more than a decrease or increase in the forecast at that period attributable to the given predictor, which may or may not have be good for forecasting accuracy.
 
-***Hence: beware, a high average absolute contribution does not necessarily translate into a high gain in accuracy. That is precisely why we need to decompose the loss or gain directly, and in consequence, take into account our target and how far away our forecasts were from it.***
+***Hence: beware, a high average absolute contribution does not necessarily translate into a high gain in accuracy. That is precisely why we need to decompose the loss directly, and in consequence, take into account our target and how far away our forecasts were from it.***
 
 From the anatomized raw forecasts, we can compute the  $\text{oShapley-VI}$ by averaging over the magnitudes of the invididual contributions:
 
