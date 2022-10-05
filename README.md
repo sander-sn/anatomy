@@ -158,7 +158,7 @@ This yields the change in out-of-sample $R^2$ attributable to each predictor:
 
 ### *Interpretation*
 
-The Shapley-based decomposition can be understood as a means to fairly allocate a single value (in this case the out-of-sample $R^2$) amongst multiple actors contributiong to it (in this case predictors in our model). This implies that the individual contributions of the actors and the contribution of the empty set of actors (`base_contribution`) sum up exactly to the original value that is decomposed.
+The Shapley-based decomposition can be understood as a means to fairly allocate a single value (in this case the out-of-sample $R^2$) amongst multiple actors contributiong to it (the predictors in our model). This implies that the individual contributions of the actors and the contribution of the empty set of actors (`base_contribution`) sum up exactly to the original value that is decomposed.
 
 The above depicts the individual contributions to the out-of-sample $R^2$, which can be negative, if a given predictor hurts accuracy, or positive, if a given predictor increases accuracy.  In this case, all predictors contribute positively to the out-of-sample $R^2$. In practice, predictors can hurt accuracy by reducing the out-of-sample $R^2$.
 
