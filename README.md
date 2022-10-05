@@ -4,7 +4,7 @@
 *[to be added]*
 
 # Quickstart
-*If you haven't already, install the package via `pip install anatomy`, preferably in a new Anaconda environment with Python 3.9.*
+*If you haven't already, install the package via `pip install anatomy`, preferably in a new environment with Python 3.9.*
 
 The anatomy package uses a simple workflow. An `Anatomy` object is initially estimated on your forecasting setup (using your data and your models), is then stored to disk, and can then be loaded at any future time without requiring re-estimation.
 
@@ -124,7 +124,7 @@ We now have all we need to train the models and estimate the `Anatomy`:
 At this point, the `Anatomy` is stored as `anatomy.bin` in our working directory. We can load it at any later point using `anatomy = Anatomy.load("anatomy.bin")`.
 
 # Anatomizing
-We can now use our estimated `Anatomy` to anatomize our forecasts. In this example, we are interested in the two models, `rf` and `ols`, as well as the equal-weighted combination of the two:
+We can now use our estimated `Anatomy` to anatomize our forecasts. In this example, we are using two models, `rf` and `ols`, as well as an equal-weighted combination of the two:
 
     groups = {
         "rf": ["rf"],  
