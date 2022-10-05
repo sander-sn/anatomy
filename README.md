@@ -133,7 +133,7 @@ We can now use our estimated `Anatomy` to anatomize our forecasts. In this examp
     }
 
 ## Anatomize the out-of-sample $R^2$ of the forecasts:
-To decompose the out-of-sample $R^2$ of our forecasts produced by the two models and the combination, we compute the unconditional forecasts and provide a function transforming forecasts into out-of-sample $R^2$ to the `Anatomy`:
+To decompose the out-of-sample $R^2$ of our forecasts produced by the two models and their combination, we compute the unconditional forecasts and provide a function transforming forecasts into out-of-sample $R^2$ to the `Anatomy`:
       
     prevailing_mean = np.array([  
         xy.iloc[subsets.get_train_subset(period=i)]["y"].mean()  
