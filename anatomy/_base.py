@@ -267,6 +267,8 @@ class Anatomy:
         if explanation_subset is None:
             explanation_subset = self._xy_test.index
         subset = self._xy_test.index.isin(explanation_subset)
+        
+        assert subset.any()
 
         def _apply(comb_set: Union[list[str], dict[str, float]]):
 

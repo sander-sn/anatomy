@@ -1,3 +1,4 @@
+
 # Introduction
 
 *[to be added]*
@@ -16,7 +17,7 @@ After initial estimation, an `Anatomy` can anatomize:
 
 all of which requires *no additional computational time*.
 
-### General structure
+## General structure
 You may already have trained your models before you create the `Anatomy`, and the aggregate of all your models at all periods may be too large to fit into your RAM. During estimation, the `Anatomy` will therefore ask you for the specific model and dataset it needs at a given iteration by calling your mapping function:
 
     from anatomy import *
@@ -43,7 +44,10 @@ and finally create the `Anatomy`:
 
 After running the above, the `Anatomy` is estimated and stored in your working directory as `my_anatomy.bin`.
 
-## Example:
+# Example:
+
+*For convenience, the examples below are contained in a single Python script available [here](https://github.com/sander-sn/anatomy/blob/main/examples/simple_dgp.py).*
+
 To get started, we need a forecasting application. We use a linear DGP to generate our dataset consisting of 500 observations of the three predictors `x_{0,1,2}` and our target `y`:
           
     # set random seed for reproducibility:
@@ -119,8 +123,8 @@ We now have all we need to train the models and estimate the `Anatomy`:
 
 At this point, the `Anatomy` is stored as `anatomy.bin` in our working directory. We can load it at any later point using `anatomy = Anatomy.load("anatomy.bin")`.
 
-## Anatomizing
-We can now use our estimated `Anatomy` to dismantle our forecasts. In this example, we are interested in the two models, `rf` and `ols`, as well as the equal-weighted combination of the two:
+# Anatomizing
+We can now use our estimated `Anatomy` to anatomize our forecasts. In this example, we are interested in the two models, `rf` and `ols`, as well as the equal-weighted combination of the two:
 
     groups = {
         "rf": ["rf"],  
@@ -128,8 +132,8 @@ We can now use our estimated `Anatomy` to dismantle our forecasts. In this examp
         "ols+rf": ["ols", "rf"]
     }
 
-### Anatomize the out-of-sample R² of the forecasts:
-To decompose the out-of-sample R² of our forecasts produced by the two models and the combination, we compute the unconditional forecasts and provide a function transforming forecasts into out-of-sample R² to the `Anatomy`:
+## Anatomize the out-of-sample $R^2$ of the forecasts:
+To decompose the out-of-sample $R^2$ of our forecasts produced by the two models and the combination, we compute the unconditional forecasts and provide a function transforming forecasts into out-of-sample $R^2$ to the `Anatomy`:
       
     prevailing_mean = np.array([  
         xy.iloc[subsets.get_train_subset(period=i)]["y"].mean()  
@@ -144,7 +148,7 @@ To decompose the out-of-sample R² of our forecasts produced by the two models a
         transformer=AnatomyModelOutputTransformer(transform=transform)
     )
 
-This yields the change in out-of-sample R² attributable to each predictor:
+This yields the change in out-of-sample $R^2$ attributable to each predictor:
 
     >>> df
                                      base_contribution       x_0       x_1       x_2
@@ -152,7 +156,15 @@ This yields the change in out-of-sample R² attributable to each predictor:
     ols    2021-07-28 -> 2022-08-31           0.000000  0.285329  0.267940  0.249870
     ols+rf 2021-07-28 -> 2022-08-31           0.000383  0.279073  0.259201  0.240548
 
-### ... the RMSE of the forecasts:
+### *Interpretation*
+
+The Shapley-based decomposition can be understood as a means to fairly allocate a single value (in this case the out-of-sample $R^2$) amongst multiple actors contributiong to it (in this case predictors in our model). This implies that the individual contributions of the actors and the contribution of the empty set of actors (`base_contribution`) sum up exactly to the original value that is decomposed.
+
+The above depicts the individual contributions to the out-of-sample $R^2$, which can be negative, if a given predictor hurts accuracy, or positive, if a given predictor increases accuracy.  In this case, all predictors contribute positively to the out-of-sample $R^2$. In practice, predictors can hurt accuracy by reducing the out-of-sample $R^2$.
+
+*Note: In this example, we use the prevailing mean (average of the target in the training sets) as benchmark to compute the out-of-sample $R^2$. The average forecast of an OLS model concides with this benchmark, which explains why the `base_contribution` of OLS is exactly zero.*
+
+## ... the RMSE of the forecasts:
 
     def transform(y_hat, y):  
         return np.sqrt(np.mean((y - y_hat) ** 2))
@@ -170,8 +182,12 @@ which yields the change in root mean squared error attributable to each predicto
     ols    2021-07-28 -> 2022-08-31           2.106313 -0.414488 -0.386125 -0.371149
     ols+rf 2021-07-28 -> 2022-08-31           2.105910 -0.397903 -0.368193 -0.350080
 
+### *Interpretation*
+The previous decomposition was that of a gain function. In this case, we use the RMSE *loss* function, implying that a predictor with a negative contribution increases forecasting accuracy. Because the RMSE cannot be negative, the `base_contribution`, which is the RMSE of the average forecasts of the models, can only be positive.
+
+Similar to the previous case, we find that all predictors contribute positively to forecasting accuracy (by contributing negatively to the RMSE).
    
-### ... the MAE:
+## ... the MAE:
 
     def transform(y_hat, y):  
         return np.mean(np.abs(y - y_hat))
@@ -189,10 +205,11 @@ which yields the change in mean absolute error attributable to each predictor:
     ols    2021-07-28 -> 2022-08-31           1.679946 -0.345583 -0.300613 -0.288960
     ols+rf 2021-07-28 -> 2022-08-31           1.679652 -0.330303 -0.283129 -0.262270
 
- 
-### ... the SE:
+### *Interpretation*
 
-*Note that the `transform` function in this case does not aggregate and returns a vector instead of a scalar. The `Anatomy` thus yields one decomposition per forecast, which is also known as a local (as opposed to global) decomposition.*
+The interpretation is similar to that of the RMSE.
+ 
+## ... the SE:
 
     def transform(y_hat, y):  
         return (y - y_hat) ** 2
@@ -211,8 +228,41 @@ which yields the change in squared error attributable to each predictor for each
            2021-07-30           2.451742 -2.702365  1.660915 -1.407192
     ...                              ...       ...       ...       ...
 
- 
-### ... or just the raw forecasts:
+*Note: The `transform` function in this case does not aggregate (returns a vector instead of a scalar). The `Anatomy` thus yields one decomposition per forecast, which is also known as a local (as opposed to global) decomposition.*
+
+### *Interpretation*
+
+The previous decompositions have shown consistently that all predictors increase forecasting accuracy when it is gauged over the entire period (2021-07-28 to 2022-08-31). Anatomizing instead each individual forecast reveals that this is not always true, at least not at the local level. We now see that individual predictors are contributing positively to the squared error of some forecasts (thus reducing forecast accuracy).
+
+## ... the RMSE of the forecasts in a subperiod:
+
+    subset = pd.date_range("2021-07-28", "2021-08-06").map(lambda x: x.date())
+    	    
+    def transform(y_hat, y):  
+        return np.sqrt(np.mean((y - y_hat) ** 2))  
+        
+    df = anatomy.explain(  
+        model_sets=AnatomyModelCombination(groups=groups),  
+        transformer=AnatomyModelOutputTransformer(transform=transform),  
+        explanation_subset=subset 
+    )
+
+which yields the change in root mean squared error in the ten-day period attributable to each predictor:
+
+```
+>>> df
+                                 base_contribution       x_0       x_1       x_2
+rf     2021-07-28 -> 2021-08-06           1.402950 -0.149847 -0.199615  0.118059
+ols    2021-07-28 -> 2021-08-06           1.404761 -0.155275 -0.323760  0.317055
+ols+rf 2021-07-28 -> 2021-08-06           1.403853 -0.169584 -0.275408  0.211672
+```
+
+### _Interpretation_
+
+In this short subperiod of ten days, we find that our last predictor contributed positively to the RMSE (and thus negatively to forecasting accuracy).
+
+
+## ... or just the raw forecasts:
 
     def transform(y_hat):
         return y_hat
@@ -231,14 +281,27 @@ which yields the change in the forecast attributable to each predictor:
            2021-07-30           0.071163 -1.514547  0.839562 -0.835136
     ...                              ...       ...       ...       ...
 
+### *Interpretation*
 
-### The Efficiency property
+Decomposing the forecasts themselves yields contributions that bear no relation to forecasting accuracy. Hence, a negative or positive contribution means no more than a decrease or increase in the forecast at that period attributable to the given predictor, which may or may not have be good for forecasting accuracy.
 
-*During estimation the `Anatomy` checks that the individual attributions of the predictors to the forecasts sum up exactly to the forecasts produced by the models. The estimation would be aborted if efficiency does not hold.*
+***Hence: beware, a high average absolute contribution does not necessarily translate into a high gain in accuracy. That is precisely why we need to decompose the loss or gain directly, and in consequence, take into account our target and how far away our forecasts were from it.***
 
-Due to the efficiency property of Shapley values, summing the individual attributions yields the decomposed value(s) exactly. We can check that the `Anatomy` is consistet, for instance, by computing the RMSE from the decomposed raw forecasts, and by comparing that to the RMSE that we can compute from the decomposed RMSE.
+From the anatomized raw forecasts, we can compute the  $\text{oShapley-VI}$ by averaging over the magnitudes of the invididual contributions:
 
-Let's begin by decomposing the RMSE directly:
+    >>> df.abs().mean(axis=0)
+    base_contribution    0.078436
+    x_0                  0.865098
+    x_1                  0.787327
+    x_2                  0.773340
+
+## The Efficiency property
+
+*During estimation, the `Anatomy` checks that the individual attributions of the predictors to the forecasts sum up exactly to the forecasts produced by the models. The estimation would be aborted if efficiency does not hold.*
+
+Due to the efficiency property of Shapley values, summing the individual contributions yields the decomposed value exactly. We can check that the results that `Anatomy` yields are consistet. We can recover the RMSE from the decomposed RMSE, but we can also recover the RMSE from the decomposed forecasts. Let's make sure that they match.
+
+We first anatomize the RMSE:
 
     def transform(y_hat, y):  
         return np.sqrt(np.mean((y - y_hat) ** 2))  
@@ -248,14 +311,14 @@ Let's begin by decomposing the RMSE directly:
         transformer=AnatomyModelOutputTransformer(transform=transform)  
     )
 
-The RMSE is the sum of the individual attributions, `rmse_a = df.sum(axis=1)`:
+The RMSE (or any other decomposed value) is the sum of the individual attributions, `rmse_a = df.sum(axis=1)`:
 
     >>> rmse_a
     rf      2021-07-28 -> 2022-08-31    1.131310
     ols     2021-07-28 -> 2022-08-31    0.934551
     ols+rf  2021-07-28 -> 2022-08-31    0.989733
 
-Let's next decompose the raw forecasts and compute the RMSE for these:
+We next decompose the raw forecasts and compute the RMSE from these:
 
     def transform(y_hat):  
         return y_hat  
@@ -285,7 +348,7 @@ From the forecasts, we can compute the RMSE:
         for key in groups.keys()  
     })
 
-This yields the same RMSE as the sum of the attributions from the RMSE decomposition:
+which yields the same RMSE as the sum of the contributions of the RMSE decomposition:
 
     >>> rmse_b
     rf        1.131310
