@@ -162,7 +162,7 @@ The Shapley-based decomposition can be understood as a means to fairly allocate 
 
 The above depicts the individual contributions to the out-of-sample $R^2$, which can be negative, if a given predictor hurts accuracy, or positive, if a given predictor increases accuracy.  In this case, all predictors contribute positively to the out-of-sample $R^2$. In practice, predictors can hurt accuracy by reducing the out-of-sample $R^2$.
 
-*Note: In this example, we use the prevailing mean (average of the target in the training sets) as benchmark to compute the out-of-sample $R^2$. The average forecast of an OLS model concides with this benchmark, which explains why the `base_contribution` of OLS is exactly zero.*
+*Note: In this example, we use the prevailing mean (average of the target in the training sets) as benchmark to compute the out-of-sample R². The average forecast of an OLS model concides with this benchmark, which explains why the `base_contribution` of OLS is exactly zero.*
 
 ## ... the RMSE of the forecasts:
 
