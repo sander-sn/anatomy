@@ -26,7 +26,7 @@ class Anatomy:
     def __init__(
         self,
         provider: Union[AnatomyModelProvider, None],
-        n_iterations=1
+        n_iterations: int = 1
     ):
         """
         :param provider: provides train set, test set, and model for given prediction period and model name

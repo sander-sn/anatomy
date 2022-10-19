@@ -3,7 +3,7 @@ from pathlib import Path
 
 setup(
     name="anatomy",
-    version="0.1.2",
+    version="0.1.3",
     packages=["anatomy"],
     install_requires=[
         "joblib>=0.15.0",
@@ -16,5 +16,6 @@ setup(
     author_email="sandersn@econ.au.dk",
     license="MIT",
     long_description=(Path(__file__).parent / "README.md").read_text(encoding="UTF-8"),
-    long_description_content_type="text/markdown"
+    long_description_content_type="text/markdown",
+    description="Shapley-based decomposition to anatomize the of out-of-sample accuracy of time-series forecasting models"
 )

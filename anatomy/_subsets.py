@@ -45,7 +45,7 @@ class AnatomySubsets:
 
         assert periods > 0
         assert gap >= 0
-        assert 0 < initial_window < index.shape[0] - 1
+        assert 0 < initial_window < index.shape[0]
         assert index.is_monotonic_increasing and index.is_unique
 
         t, subsets = 0, []

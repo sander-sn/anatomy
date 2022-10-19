@@ -1,7 +1,16 @@
 
 # Introduction
 
-*[to be added]*
+This package implements the $\text{oShapley-VI}_p$ (out-of-sample Shapley value) and $\text{PBSV}_p$ (performance-based Shapley value) proposed in the "The Anatomy of Out-of-Sample Forecasting Accuracy" paper by Daniel Borup, Philippe Goulet Coulombe, David E. Rapach, Erik Christian Montes Schütte, and Sander Schwenk-Nebbe, which is available to download for free at SSRN [here](https://to-be-added.com).
+
+The $\text{PBSV}_p$ is a Shapley-based decomposition that measures the contributions of an individual predictor $p$ in fitted models to the out-of-sample loss. Shapley values have various attractive properties, such as efficiency, which guarantees that the sum of the PBSV over all predictors (including the empty set) equals exactly the loss that was anatomized (see [below example](#the-efficiency-property)).
+
+The interpretation of PBSVs is straightforward: if $\text{PBSV}_p$ is negative (positive), predictor $p$ reduces (increases) the loss and is thus beneficial for (detrimental to) forecasting accuracy in the out-of-sample period. 
+
+Please cite this paper if you find the package useful:
+
+    *to be added*
+
 
 # Quickstart
 *If you haven't already, install the package via `pip install anatomy`, preferably in a new environment with Python 3.9.*
@@ -232,7 +241,7 @@ which yields the change in squared error attributable to each predictor for each
 
 ### *Interpretation*
 
-The previous decompositions have shown consistently that all predictors increase forecasting accuracy when it is gauged over the entire period (2021-07-28 to 2022-08-31). Anatomizing instead each individual forecast reveals that this is not always true, at least not at the local level. We now see that individual predictors are contributing positively to the squared error of some forecasts (thus reducing forecast accuracy).
+The previous decompositions have consistently shown that all predictors increase forecasting accuracy when it is gauged over the entire period (2021-07-28 to 2022-08-31). Anatomizing instead each individual forecast reveals that this is not always true, at least not at the local level. We now see that individual predictors are contributing positively to the squared error of some forecasts (thus reducing forecast accuracy).
 
 ## ... the RMSE of the forecasts in a subperiod:
 
