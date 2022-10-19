@@ -1,7 +1,7 @@
 
 # Introduction
 
-This package implements the $\text{oShapley-VI}_p$ (out-of-sample Shapley value) and $\text{PBSV}_p$ (performance-based Shapley value) proposed in the "The Anatomy of Out-of-Sample Forecasting Accuracy" paper by Daniel Borup, Philippe Goulet Coulombe, David E. Rapach, Erik Christian Montes Schütte, and Sander Schwenk-Nebbe, which is available to download for free at SSRN [here](https://to-be-added.com).
+This package implements the $\text{oShapley-VI}_p$ (out-of-sample Shapley-based variable importance) and $\text{PBSV}_p$ (performance-based Shapley value) proposed in the "The Anatomy of Out-of-Sample Forecasting Accuracy" paper by Daniel Borup, Philippe Goulet Coulombe, David E. Rapach, Erik Christian Montes Schütte, and Sander Schwenk-Nebbe, which is available to download for free at SSRN [here](https://to-be-added.com).
 
 The $\text{PBSV}_p$ is a Shapley-based decomposition that measures the contributions of an individual predictor $p$ in fitted models to the out-of-sample loss. Shapley values have various attractive properties, such as efficiency, which guarantees that the sum of the PBSV over all predictors (including the empty set) equals exactly the loss that was anatomized (see [below example](#the-efficiency-property)).
 
