@@ -1,7 +1,7 @@
 
 # Introduction
 
-This package implements the $\text{oShapley-VI}_p$ (out-of-sample Shapley-based variable importance) and $\text{PBSV}_p$ (performance-based Shapley value) proposed in the "The Anatomy of Out-of-Sample Forecasting Accuracy" paper by Daniel Borup, Philippe Goulet Coulombe, David E. Rapach, Erik Christian Montes Schütte, and Sander Schwenk-Nebbe, which is available to download for free at SSRN [here](https://to-be-added.com).
+This package implements the $\text{oShapley-VI}_p$ (out-of-sample Shapley-based variable importance) and $\text{PBSV}_p$ (performance-based Shapley value) proposed in the "The Anatomy of Out-of-Sample Forecasting Accuracy" paper by Daniel Borup, Philippe Goulet Coulombe, David E. Rapach, Erik Christian Montes Schütte, and Sander Schwenk-Nebbe, which is available to download for free at the Federal Reserve Bank of Atlanta [here](https://www.atlantafed.org/research/publications/wp/2022/11/07/16--anatomy-of-out-of-sample-forecasting-accuracy.aspx).
 
 The $\text{PBSV}_p$ is a Shapley-based decomposition that measures the contributions of an individual predictor $p$ in fitted models to the out-of-sample loss. Shapley values have various attractive properties, such as efficiency, which guarantees that the sum of the PBSV over all predictors (including the empty set) equals exactly the loss that was anatomized (see [below example](#the-efficiency-property)).
 
@@ -9,7 +9,7 @@ The interpretation of PBSVs is straightforward: if $\text{PBSV}_p$ is negative (
 
 Please cite this paper if you find the package useful:
 
-    *to be added*
+    Borup, Daniel and Coulombe, Philippe Goulet and Rapach, David E. and Montes Schütte, Erik Christian and Schwenk-Nebbe, Sander (2022). “The Anatomy of Out-of-Sample Forecasting Accuracy”. Federal Reserve Bank of Atlanta Working Paper 2022-16. https://doi.org/10.29338/wp2022-16.
 
 
 # Quickstart
