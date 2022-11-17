@@ -5,7 +5,7 @@ This package implements the $\text{oShapley-VI}_p$ (out-of-sample Shapley-based 
 
 The $\text{PBSV}_p$ is a Shapley-based decomposition that measures the contributions of an individual predictor $p$ in fitted models to the out-of-sample loss.
 
-The interpretation of PBSVs is straightforward: if $\text{PBSV}_p$ is negative (positive), predictor $p$ reduces (increases) the loss and is thus beneficial for (detrimental to) forecasting accuracy in the out-of-sample period. Taking the sum of the individual contributions (including the contribution of the empty set) yields back exactly the loss that was anatomized (due to the efficiency property of Shapley values; see [below example](#the-efficiency-property)).
+The interpretation of PBSVs is straightforward: if $\text{PBSV}_p$ is negative (positive), predictor $p$ reduces (increases) the loss and is thus beneficial for (detrimental to) forecasting accuracy in the out-of-sample period. Taking the sum of the individual contributions (including the contribution of the empty set) yields the decomposed loss exactly (due to the efficiency property of Shapley values; see [below example](#the-efficiency-property)).
 
 Please cite our paper if you find the package useful:
 
