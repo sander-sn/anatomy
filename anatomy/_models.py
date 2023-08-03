@@ -81,6 +81,6 @@ class AnatomyModelOutputTransformer:
          raw model output) and can optionally use named argumeny y (contains true target);
          let transformer return aggregated result instead of series to get an aggregated (global) explanation
         """
-        assert "y_hat" in transform.__code__.co_varnames
-        assert all([x in ["y_hat", "y"] for x in transform.__code__.co_varnames])
+        assert "y_hat" in transform.__code__.co_varnames[:transform.__code__.co_argcount]
+        assert all([x in ["y_hat", "y"] for x in transform.__code__.co_varnames[:transform.__code__.co_argcount]])
         self.transform = transform

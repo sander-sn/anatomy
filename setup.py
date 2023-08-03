@@ -3,7 +3,7 @@ from pathlib import Path
 
 setup(
     name="anatomy",
-    version="0.1.4",
+    version="0.1.5",
     packages=["anatomy"],
     install_requires=[
         "joblib>=0.15.0",

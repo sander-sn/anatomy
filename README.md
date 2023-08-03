@@ -1,9 +1,9 @@
 
 # Introduction
 
-This package implements the $\text{oShapley-VI}_p$ (out-of-sample Shapley-based variable importance) and $\text{PBSV}_p$ (performance-based Shapley value) proposed in the "The Anatomy of Out-of-Sample Forecasting Accuracy" paper by Daniel Borup, Philippe Goulet Coulombe, David E. Rapach, Erik Christian Montes Schütte, and Sander Schwenk-Nebbe, which is available to download for free at SSRN: [https://ssrn.com/abstract=4278745](https://ssrn.com/abstract=4278745).
+This package implements the $\text{oShapley-VI}_p$ (out-of-sample Shapley-based variable importance), $\text{PBSV}_p$ (performance-based Shapley value), MAS (model accordance score) and MAS hypothesis testing, proposed in the "The Anatomy of Out-of-Sample Forecasting Accuracy" paper by Daniel Borup, Philippe Goulet Coulombe, David E. Rapach, Erik Christian Montes Schütte, and Sander Schwenk-Nebbe, which is available to download for free at SSRN: [https://ssrn.com/abstract=4278745](https://ssrn.com/abstract=4278745).
 
-The $\text{PBSV}_p$ is a Shapley-based decomposition that measures the contributions of an individual predictor $p$ in fitted models to the out-of-sample loss.
+The $\text{PBSV}_p$ is a Shapley-based decomposition that measures the contributions of an individual predictor $p$ in fitted models to the out-of-sample loss. While a performance metric like the RMSE focuses solely on out-of-sample performance, MAS evaluates whether a model's out-of-sample success mirrors what it has learned from the in-sample data by comparing $\text{iShapley-VI}_p$ (or $\text{oShapley-VI}_p$) to $\text{PBSV}_p$. The MAS paired with a performance metric such as the RMSE provides insight into the model's "intentional success" (see [below example](#model-accordance-score)).
 
 The interpretation of PBSVs is straightforward: if $\text{PBSV}_p$ is negative (positive), predictor $p$ reduces (increases) the loss and is thus beneficial for (detrimental to) forecasting accuracy in the out-of-sample period. Taking the sum of the individual contributions (including the contribution of the empty set) yields the decomposed loss exactly (due to the efficiency property of Shapley values; see [below example](#the-efficiency-property)).
 
@@ -250,7 +250,7 @@ The previous decompositions have consistently shown that all predictors increase
     def transform(y_hat, y):  
         return np.sqrt(np.mean((y - y_hat) ** 2))  
         
-    df = anatomy.explain(  
+    df_pbsv_rmse = anatomy.explain(  
         model_sets=AnatomyModelCombination(groups=groups),  
         transformer=AnatomyModelOutputTransformer(transform=transform),  
         explanation_subset=subset 
@@ -259,7 +259,7 @@ The previous decompositions have consistently shown that all predictors increase
 which yields the change in root mean squared error in the ten-day period attributable to each predictor:
 
 ```
->>> df
+>>> df_pbsv_rmse
                                  base_contribution       x_0       x_1       x_2
 rf     2021-07-28 -> 2021-08-06           1.402950 -0.149847 -0.199615  0.118059
 ols    2021-07-28 -> 2021-08-06           1.404761 -0.155275 -0.323760  0.317055
@@ -276,14 +276,14 @@ In this short subperiod of ten days, we find that our last predictor contributed
     def transform(y_hat):
         return y_hat
         
-    df = anatomy.explain(
+    df_oshapley = anatomy.explain(
         model_sets=AnatomyModelCombination(groups=groups),
         transformer=AnatomyModelOutputTransformer(transform=transform)
     )
 
 which yields the change in the forecast attributable to each predictor:
 
-    >>> df
+    >>> df_oshapley
                        base_contribution       x_0       x_1       x_2
     rf     2021-07-28           0.070861  0.222932  0.360182 -0.315820
            2021-07-29           0.070354  0.250389 -0.617779  0.984992
@@ -296,13 +296,37 @@ Decomposing the forecasts themselves yields contributions that bear no relation 
 
 ***Hence: beware, a high average absolute contribution does not necessarily translate into a high gain in accuracy. That is precisely why we need to decompose the loss directly, and in consequence, take into account our target and how far away our forecasts were from it.***
 
-From the anatomized raw forecasts, we can compute the  $\text{oShapley-VI}$ by averaging over the magnitudes of the invididual contributions:
+From the anatomized raw forecasts, we can compute the $\text{oShapley-VI}$ by averaging over the magnitudes of the invididual contributions (here for the ``ols+rf`` combination):
 
-    >>> df.abs().mean(axis=0)
-    base_contribution    0.078436
-    x_0                  0.865098
-    x_1                  0.787327
-    x_2                  0.773340
+    >>> df_oshapley.loc["ols+rf"].abs().mean(axis=0)
+    base_contribution    0.078415
+    x_0                  0.864057
+    x_1                  0.786044
+    x_2                  0.770115
+
+## Model Accordance Score:
+
+We can compute the MAS for our combination model (``ols+rf``) using $\text{oShapley-VI}$ and, for instance, the $\text{PBSV(RMSE)}_p$:
+
+    vi = df_oshapley.loc["ols+rf"].abs().mean(axis=0).drop("base_contribution")
+    pbsv = df_pbsv_rmse.loc["ols+rf"].iloc[0].drop("base_contribution")
+
+    h0 = MAS.H0(p=vi.shape[0])               # generate mas(p) under the null
+    loss_type = MAS.LossType.LOWER_IS_BETTER # rmse => lower is better
+
+    mas = MAS(vi, pbsv, loss_type, h0).compute()
+
+which yields the MAS:
+
+    >>> mas
+    {'mas': 1.0, 'mas_p_val': 0.0}
+
+### *Interpretation*
+
+In this example, the ranking of $\text{oShapley-VI}$ is identical to the signed-ranking of $\text{PBSV(RMSE)}_p$.
+Thus, MAS is 1 (perfect) and the null hypothesis of no relation between $\text{oShapley-VI}$ and $\text{PBSV(RMSE)}_p$ is rejected
+(``mas_p_val`` is the probability of observing a MAS lower or equal to ``mas`` under the null).
+
 
 ## The Efficiency property
 

@@ -157,8 +157,9 @@ def anatomize(xy: pd.DataFrame, subsets: AnatomySubsets) -> None:
     print(tmpl % "out-of-sample R²")
     print(anatomize_r2_oos(), "\n")
 
+    pbsv_rmse_df = anatomize_rmse()
     print(tmpl % "root mean squared error")
-    print(anatomize_rmse(), "\n")
+    print(pbsv_rmse_df, "\n")
 
     print(tmpl % "root mean squared error (subperiod)")
     print(anatomize_rmse_subperiod(), "\n")
@@ -169,8 +170,20 @@ def anatomize(xy: pd.DataFrame, subsets: AnatomySubsets) -> None:
     print(tmpl % "squared errors")
     print(anatomize_se(), "\n")
 
+    raw_df = anatomize_forecasts()
     print(tmpl % "forecasts")
-    print(anatomize_forecasts(), "\n")
+    print(raw_df, "\n")
+
+    def compute_mas(vi, pbsv, loss_type):
+        h0 = MAS.H0(p=vi.shape[0])
+        mas = MAS(vi, pbsv, loss_type, h0).compute()
+        return mas
+
+    vi_comb = raw_df.loc["ols+rf"].abs().mean(axis=0).drop("base_contribution")
+    pbsv_rmse_comb = pbsv_rmse_df.loc["ols+rf"].iloc[0].drop("base_contribution")
+
+    print("model accordance score (oShapley-VI vs PBSV-rmse):")
+    print(compute_mas(vi_comb, pbsv_rmse_comb, MAS.LossType.LOWER_IS_BETTER))
 
 
 def main():
