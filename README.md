@@ -304,30 +304,6 @@ From the anatomized raw forecasts, we can compute the $\text{oShapley-VI}$ by av
     x_1                  0.786044
     x_2                  0.770115
 
-## Model Accordance Score:
-
-We can compute the MAS for our combination model (``ols+rf``) using $\text{oShapley-VI}$ and, for instance, the $\text{PBSV(RMSE)}_p$:
-
-    vi = df_oshapley.loc["ols+rf"].abs().mean(axis=0).drop("base_contribution")
-    pbsv = df_pbsv_rmse.loc["ols+rf"].iloc[0].drop("base_contribution")
-
-    h0 = MAS.H0(p=vi.shape[0])               # generate mas(p) under the null
-    loss_type = MAS.LossType.LOWER_IS_BETTER # rmse => lower is better
-
-    mas = MAS(vi, pbsv, loss_type, h0).compute()
-
-which yields the MAS:
-
-    >>> mas
-    {'mas': 1.0, 'mas_p_val': 0.0}
-
-### *Interpretation*
-
-In this example, the ranking of $\text{oShapley-VI}$ is identical to the signed-ranking of $\text{PBSV(RMSE)}_p$.
-Thus, MAS is 1 (perfect) and the null hypothesis of no relation between $\text{oShapley-VI}$ and $\text{PBSV(RMSE)}_p$ is rejected
-(``mas_p_val`` is the probability of observing a MAS lower or equal to ``mas`` under the null).
-
-
 ## The Efficiency property
 
 *During estimation, the `Anatomy` checks that the individual attributions of the predictors to the forecasts sum up exactly to the forecasts produced by the models. The estimation would be aborted if efficiency does not hold.*
@@ -388,3 +364,27 @@ which yields the same RMSE as the sum of the contributions of the RMSE decomposi
     ols       0.934551
     ols+rf    0.989733
 
+# Model Accordance Score:
+
+We can compute the MAS for our combination model (``ols+rf``) using $\text{oShapley-VI}$ and, for instance, the
+$\text{PBSV}$ for the root-mean-square error:
+
+    vi = df_oshapley.loc["ols+rf"].abs().mean(axis=0)
+    pbsv = df_pbsv_rmse.loc["ols+rf"].iloc[0]
+
+    # loss type is rmse, so lower is better:
+    loss_type = MAS.LossType.LOWER_IS_BETTER
+
+    mas = MAS(vi, pbsv, loss_type).compute()
+
+which yields the MAS:
+
+    >>> mas
+    {'mas': 1.0, 'mas_p_value': 0.020796}
+
+### *Interpretation*
+
+In this example, the ranking of $\text{oShapley-VI}$ is identical to the signed-ranking of $\text{PBSV}$.
+Thus, MAS is 1 (perfect) and the null hypothesis of no relation between $\text{oShapley-VI}_p$ and $\text{PBSV}_p$
+is rejected at the 5% level (``mas_p_value`` is the probability of observing a MAS at least as extreme as ``mas`` under
+the null).

@@ -28,9 +28,9 @@ def train_rf(x_train: pd.DataFrame, y_train: pd.Series) -> AnatomyModel:
     return AnatomyModel(pred_fn_rf)
 
 
-def generate_data() -> [pd.DataFrame, AnatomySubsets]:
+def generate_data(n_predictors=3) -> [pd.DataFrame, AnatomySubsets]:
 
-    xy = pd.DataFrame(np.random.normal(0, 1, (500, 3)), columns=["x_0", "x_1", "x_2"])
+    xy = pd.DataFrame(np.random.normal(0, 1, (500, n_predictors)), columns=["x_%i" % x for x in range(n_predictors)])
     xy["y"] = xy.sum(axis=1) + np.random.normal(0, 1, 500)
 
     # set a unique and monotonically increasing index (default index would suffice):
@@ -174,16 +174,20 @@ def anatomize(xy: pd.DataFrame, subsets: AnatomySubsets) -> None:
     print(tmpl % "forecasts")
     print(raw_df, "\n")
 
-    def compute_mas(vi, pbsv, loss_type):
-        h0 = MAS.H0(p=vi.shape[0])
-        mas = MAS(vi, pbsv, loss_type, h0).compute()
-        return mas
+    def compute_mas() -> dict:
 
-    vi_comb = raw_df.loc["ols+rf"].abs().mean(axis=0).drop("base_contribution")
-    pbsv_rmse_comb = pbsv_rmse_df.loc["ols+rf"].iloc[0].drop("base_contribution")
+        vi_comb = raw_df.loc["ols+rf"].abs().mean(axis=0)
+        pbsv_rmse_comb = pbsv_rmse_df.loc["ols+rf"].iloc[0]
+        loss_type = MAS.LossType.LOWER_IS_BETTER  # loss type is rmse, so lower is better
+
+        return MAS(vi_comb, pbsv_rmse_comb, loss_type).compute(
+            mas_type=MAS.MASType.IMPORTANCE_WEIGHTED,
+            hypothesis_test=True,
+            h0_alpha=.5
+        )
 
     print("model accordance score (oShapley-VI vs PBSV-rmse):")
-    print(compute_mas(vi_comb, pbsv_rmse_comb, MAS.LossType.LOWER_IS_BETTER))
+    print(compute_mas())
 
 
 def main():
