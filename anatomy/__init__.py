@@ -10,7 +10,7 @@ from ._models import AnatomyModel, AnatomyModelProvider, AnatomyModelCombination
 from ._algorithm import AnatomyAlgorithm
 from ._base import Anatomy
 
-__version__ = "0.1.5"
+__version__ = "0.1.6"
 __author__ = "Sander Schwenk-Nebbe"
 __copyright__ = "Copyright 2023, Sander Schwenk-Nebbe"
 __license__ = "MIT"
